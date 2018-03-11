@@ -15,6 +15,8 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
+// These are the pins used to control the motor shield
+
 #define DRIVE_MOTOR_POWER D2 // Motor B
 #define DRIVE_MOTOR_DIRECTION D4
 
@@ -25,15 +27,23 @@
 // Can be set between 0 and 1023 (although car problaly wont move if values are too low)
 int drivePower = 1023;
 
+// driveDirection sets what direction the car drives
+// If the car is moving backwards when you press the forward button, change this to LOW
+uint8_t driveDirection = HIGH;
+
 // steeringPower sets how fast the car turns
 // Can be set between 0 and 1023 (again, car probably won't steer if the value is too low)
 int steeringPower = 1023;
 
+// steerDirection sets what direction the car steers
+// If the car is steering right when you press the left button, change this to LOW
+uint8_t steerDirection = HIGH;
+
 // ----------------
 // Set your WiFi SSID and Password here
 // ----------------
-const char* ssid = "brian";
-const char* password = "brianbrian";
+const char* ssid = "ssid";
+const char* password = "password";
 
 ESP8266WebServer server(80);
 
@@ -96,7 +106,7 @@ void setup(void){
   server.on("/forward", [](){
     Serial.println("forward");
     analogWrite(DRIVE_MOTOR_POWER, drivePower);
-    digitalWrite(DRIVE_MOTOR_DIRECTION, HIGH);
+    digitalWrite(DRIVE_MOTOR_DIRECTION, driveDirection);
     server.send(200, "text/plain", "forward");
   });
 
@@ -109,21 +119,21 @@ void setup(void){
   server.on("/back", [](){
     Serial.println("back");
     analogWrite(DRIVE_MOTOR_POWER, drivePower);
-    digitalWrite(DRIVE_MOTOR_DIRECTION, LOW);
+    digitalWrite(DRIVE_MOTOR_DIRECTION, !driveDirection);
     server.send(200, "text/plain", "back");
   });
 
   server.on("/right", [](){
     Serial.println("right");
     analogWrite(STEER_MOTOR_POWER, steeringPower);
-    digitalWrite(STEER_MOTOR_DIRECTION, HIGH);
+    digitalWrite(STEER_MOTOR_DIRECTION, steerDirection);
     server.send(200, "text/plain", "right");
   });
 
   server.on("/left", [](){
     Serial.println("left");
     analogWrite(STEER_MOTOR_POWER, steeringPower);
-    digitalWrite(STEER_MOTOR_DIRECTION, LOW);
+    digitalWrite(STEER_MOTOR_DIRECTION, !steerDirection);
     server.send(200, "text/plain", "left");
   });
 
